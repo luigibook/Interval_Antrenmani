@@ -1,0 +1,1360 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Uzun Mesafe Koşucuları için İnterval Rehberi</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css">
+    <style>
+        body {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+        }
+        .tab-button.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        .gradient-text {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .protocol-card {
+            background: linear-gradient(135deg, #2d3748 0%, #4a5568 100%);
+            border: 1px solid #4a5568;
+            transition: all 0.3s ease;
+        }
+        .protocol-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+        }
+        .timeline-item {
+            position: relative;
+            padding-left: 2rem;
+        }
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0.5rem;
+            width: 12px;
+            height: 12px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 50%;
+        }
+        .timeline-item::after {
+            content: '';
+            position: absolute;
+            left: 5px;
+            top: 1.5rem;
+            width: 2px;
+            height: calc(100% - 1rem);
+            background: #4a5568;
+        }
+        .timeline-item:last-child::after {
+            display: none;
+        }
+        .accordion-button {
+            transition: all 0.3s ease;
+        }
+        .accordion-button:hover {
+            background-color: #4a5568;
+        }
+        .accordion-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+        }
+        .accordion-content.active {
+            max-height: 1000px;
+        }
+         {
+            body { background: white !important; color: black !important; }
+            .no-print { display: none !important; }
+        }
+    </style>
+</head>
+<body class="text-gray-100 min-h-screen">
+    <!-- Header -->
+    <header class="bg-gray-900 py-8 px-4 text-center border-b border-gray-700">
+        <div class="max-w-6xl mx-auto">
+            <h1 class="text-4xl md:text-6xl font-bold gradient-text mb-4">
+                <i class="fas fa-running mr-4"></i>
+                Uzun Mesafe Koşucuları için İnterval Rehberi
+            </h1>
+            <p class="text-xl text-gray-300 mb-4">Emil Zatopek'ten Günümüze: Bilimsel ve Pratik Yaklaşım</p>
+            <p class="text-gray-400">Hazırlayan: <strong class="text-blue-400">Ümit Emre Erdoğan</strong></p>
+        </div>
+    </header>
+
+    <!-- Navigation -->
+    <nav class="sticky top-0 bg-gray-800 py-4 px-4 z-50 border-b border-gray-700">
+        <div class="max-w-6xl mx-auto">
+            <div class="flex flex-wrap gap-2 justify-center">
+                <button onclick="showTab('tarih')" class="tab-button px-4 py-2 rounded-lg bg-gray-700 hover:bg-gray-600 transition-all duration-300 text-sm active">
+                    <i class="fas fa-history mr-2"></i>Tarihçe
+                </button>
+                <button onclick="showTab('bilim')" class="tab-button px-4 py-2 rounded-lg bg-gray-700 hover:bg-gray-600 transition-all duration-300 text-sm">
+                    <i class="fas fa-flask mr-2"></i>Bilimsel Temel
+                </button>
+                <button onclick="showTab('protokol')" class="tab-button px-4 py-2 rounded-lg bg-gray-700 hover:bg-gray-600 transition-all duration-300 text-sm">
+                    <i class="fas fa-clipboard-list mr-2"></i>Protokoller
+                </button>
+                <button onclick="showTab('periodizasyon')" class="tab-button px-4 py-2 rounded-lg bg-gray-700 hover:bg-gray-600 transition-all duration-300 text-sm">
+                    <i class="fas fa-calendar-alt mr-2"></i>Periodizasyon
+                </button>
+                <button onclick="showTab('mesafe')" class="tab-button px-4 py-2 rounded-lg bg-gray-700 hover:bg-gray-600 transition-all duration-300 text-sm">
+                    <i class="fas fa-route mr-2"></i>Mesafe Bazlı
+                </button>
+                <button onclick="showTab('risk')" class="tab-button px-4 py-2 rounded-lg bg-gray-700 hover:bg-gray-600 transition-all duration-300 text-sm">
+                    <i class="fas fa-exclamation-triangle mr-2"></i>Riskler
+                </button>
+                <button onclick="showTab('hatalar')" class="tab-button px-4 py-2 rounded-lg bg-gray-700 hover:bg-gray-600 transition-all duration-300 text-sm">
+                    <i class="fas fa-times-circle mr-2"></i>Hatalar
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <div class="max-w-6xl mx-auto px-4 py-8">
+        <!-- Tarihçe Tab -->
+        <div id="tarih" class="tab-content active">
+            <div class="bg-gray-800 rounded-lg p-8 mb-8">
+                <h2 class="text-3xl font-bold gradient-text mb-6">
+                    <i class="fas fa-history mr-3"></i>İnterval Antrenmanının Tarihsel Gelişimi
+                </h2>
+                
+                <div class="space-y-8">
+                    <div class="timeline-item bg-gray-700 p-6 rounded-lg">
+                        <h3 class="text-xl font-bold text-blue-400 mb-3">İlk Başlangıçlar (1800'ler - 1920'ler)</h3>
+                        <p class="text-gray-300 mb-4">İlk belgelenmiş örnek 1902 yılında Joe Binks'e aittir. 4:16'lık mil rekoruna sahip İngiliz koşucusu, haftada yalnızca bir kez 30 dakikalık seanslar yapıyordu.</p>
+                        <div class="bg-gray-600 p-4 rounded-lg">
+                            <strong class="text-yellow-400">Joe Binks Protokolü:</strong>
+                            <ul class="list-disc list-inside mt-2 text-gray-300">
+                                <li>5-6 adet 110 yard interval (maksimum hız)</li>
+                                <li>200-300 yard hızlı bitiş</li>
+                                <li>Haftalık sadece 1 seans</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="timeline-item bg-gray-700 p-6 rounded-lg">
+                        <h3 class="text-xl font-bold text-blue-400 mb-3">Finlandiya Dönemi (1910'lar)</h3>
+                        <p class="text-gray-300 mb-4">Fin antrenör Lauri Pikhala'nın sistemi, Paavo Nurmi ve Hannes Kolehmainen tarafından uygulandı.</p>
+                        <div class="bg-gray-600 p-4 rounded-lg">
+                            <strong class="text-yellow-400">Nurmi'nin Metodolojisi:</strong>
+                            <ul class="list-disc list-inside mt-2 text-gray-300">
+                                <li>4-7 km koşular, son 1-2 km yüksek hızda</li>
+                                <li>4-5 adet 150m sprint (%100 şiddet)</li>
+                                <li>600-3000m arası %75-90 şiddet</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="timeline-item bg-gray-700 p-6 rounded-lg">
+                        <h3 class="text-xl font-bold text-blue-400 mb-3">İsveç Fartlek (1930'lar)</h3>
+                        <p class="text-gray-300 mb-4">Gosta Holmer'in "fartlek" (hız oyunu) sistemi, Gundar Hagg ve Arne Anderson tarafından başarıyla uygulandı.</p>
+                        <div class="bg-gray-600 p-4 rounded-lg">
+                            <strong class="text-yellow-400">Fartlek Özellikleri:</strong>
+                            <ul class="list-disc list-inside mt-2 text-gray-300">
+                                <li>Doğal arazide uygulama</li>
+                                <li>Sporcu tarafından belirlenen hız değişimleri</li>
+                                <li>Yapılandırılmamış interval sistemi</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="timeline-item bg-gray-700 p-6 rounded-lg">
+                        <h3 class="text-xl font-bold text-blue-400 mb-3">Gerschler Sistemi (1930'lar)</h3>
+                        <p class="text-gray-300 mb-4">Woldemar Gerschler ve Dr. Herbert Reindel'in kalp hızı bazlı bilimsel yaklaşımı.</p>
+                        <div class="bg-gray-600 p-4 rounded-lg">
+                            <strong class="text-yellow-400">Gerschler Prensipleri:</strong>
+                            <ul class="list-disc list-inside mt-2 text-gray-300">
+                                <li>Çalışma: 180 atım/dakika kalp hızı</li>
+                                <li>Dinlenme: 1:30'da 120-125 atım/dakikaya düşüş</li>
+                                <li>Genellikle 100-200m kısa tekrarlar</li>
+                                <li>3000+ kişi üzerinde araştırma</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="timeline-item bg-gray-700 p-6 rounded-lg">
+                        <h3 class="text-xl font-bold text-blue-400 mb-3">Emil Zatopek Devrimi</h3>
+                        <p class="text-gray-300 mb-4 italic">"Yavaş koşmayı zaten biliyorum. Hızlı koşmayı öğrenmek istiyorum."</p>
+                        <div class="bg-gray-600 p-4 rounded-lg">
+                            <strong class="text-yellow-400">Zatopek'in Efsanevi Seansları:</strong>
+                            <ul class="list-disc list-inside mt-2 text-gray-300">
+                                <li>Klasik: 5×200m + 20×400m + 5×200m</li>
+                                <li>İleri: 20×200m + 40×400m + 20×200m</li>
+                                <li>400m tekrarları: 67-77 saniye (kritik hız)</li>
+                                <li>Yıllık 7,888 km (152 km/hafta ortalama)</li>
+                                <li>Ordu botlarıyla antrenman yapardı!</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Bilimsel Temel Tab -->
+        <div id="bilim" class="tab-content">
+            <div class="bg-gray-800 rounded-lg p-8 mb-8">
+                <h2 class="text-3xl font-bold gradient-text mb-6">
+                    <i class="fas fa-flask mr-3"></i>Bilimsel Terimler ve Kavramlar
+                </h2>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                    <div onclick="toggleAccordion('vo2max')" class="accordion-button bg-gray-700 p-4 rounded-lg cursor-pointer hover:bg-gray-600">
+                        <h3 class="text-lg font-bold text-blue-400 flex items-center justify-between">
+                            <span><i class="fas fa-lungs mr-2"></i>VO2max</span>
+                            <i class="fas fa-chevron-down transition-transform" id="vo2max-icon"></i>
+                        </h3>
+                        <div id="vo2max-content" class="accordion-content mt-3 text-gray-300">
+                            <p>Vücudun dakikada tüketebileceği maksimum oksijen miktarı. Aerobik kapasitenin en önemli göstergesi.</p>
+                            <p class="mt-2"><strong class="text-yellow-400">Ölçüm:</strong> ml/kg/dak veya L/dak</p>
+                            <p class="mt-2"><strong class="text-yellow-400">İnterval Etkisi:</strong> 6-12 hafta içinde %8-15 artış</p>
+                        </div>
+                    </div>
+
+                    <div onclick="toggleAccordion('laktat')" class="accordion-button bg-gray-700 p-4 rounded-lg cursor-pointer hover:bg-gray-600">
+                        <h3 class="text-lg font-bold text-blue-400 flex items-center justify-between">
+                            <span><i class="fas fa-tint mr-2"></i>Laktat Eşiği</span>
+                            <i class="fas fa-chevron-down transition-transform" id="laktat-icon"></i>
+                        </h3>
+                        <div id="laktat-content" class="accordion-content mt-3 text-gray-300">
+                            <p>Kan laktat seviyesinin belirgin şekilde yükselmeye başladığı egzersiz şiddeti.</p>
+                            <p class="mt-2"><strong class="text-yellow-400">LT1:</strong> ~2 mmol/L (İlk laktat eşiği)</p>
+                            <p class="mt-2"><strong class="text-yellow-400">LT2:</strong> ~4 mmol/L (Anaerobik eşik)</p>
+                        </div>
+                    </div>
+
+                    <div onclick="toggleAccordion('kritik')" class="accordion-button bg-gray-700 p-4 rounded-lg cursor-pointer hover:bg-gray-600">
+                        <h3 class="text-lg font-bold text-blue-400 flex items-center justify-between">
+                            <span><i class="fas fa-gauge-high mr-2"></i>Kritik Hız</span>
+                            <i class="fas fa-chevron-down transition-transform" id="kritik-icon"></i>
+                        </h3>
+                        <div id="kritik-content" class="accordion-content mt-3 text-gray-300">
+                            <p>Metabolik olarak sürdürülebilir maksimum koşu hızı. Hiperbolic modelin asimptot değeri.</p>
+                            <p class="mt-2"><strong class="text-yellow-400">Formül:</strong> t_lim = D' / (s - CS)</p>
+                            <p class="mt-2"><strong class="text-yellow-400">Pratik:</strong> ~30 dakikalık yarış temposu</p>
+                        </div>
+                    </div>
+
+                    <div onclick="toggleAccordion('dprime')" class="accordion-button bg-gray-700 p-4 rounded-lg cursor-pointer hover:bg-gray-600">
+                        <h3 class="text-lg font-bold text-blue-400 flex items-center justify-between">
+                            <span><i class="fas fa-battery-three-quarters mr-2"></i>D' (D-prime)</span>
+                            <i class="fas fa-chevron-down transition-transform" id="dprime-icon"></i>
+                        </h3>
+                        <div id="dprime-content" class="accordion-content mt-3 text-gray-300">
+                            <p>Kritik hız modelindeki ikinci parametre. "Sonlu enerji rezervi" kavramını temsil eder.</p>
+                            <p class="mt-2"><strong class="text-yellow-400">Birim:</strong> Metre (enerji ≈ mesafe)</p>
+                            <p class="mt-2"><strong class="text-yellow-400">Anlamı:</strong> Anaerobik kapasite göstergesi</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-gray-700 p-6 rounded-lg">
+                    <h3 class="text-xl font-bold text-blue-400 mb-4">
+                        <i class="fas fa-chart-line mr-2"></i>VO2max Üzerindeki Etkiler - Meta-analiz Bulguları
+                    </h3>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div class="bg-gray-600 p-4 rounded-lg text-center">
+                            <div class="text-2xl font-bold text-green-400">0.51 L/dak</div>
+                            <div class="text-sm text-gray-300">Ortalama VO2max Artışı</div>
+                        </div>
+                        <div class="bg-gray-600 p-4 rounded-lg text-center">
+                            <div class="text-2xl font-bold text-green-400">0.8-0.9 L/dak</div>
+                            <div class="text-sm text-gray-300">Uzun İntervallerle</div>
+                        </div>
+                        <div class="bg-gray-600 p-4 rounded-lg text-center">
+                            <div class="text-2xl font-bold text-green-400">334 Katılımcı</div>
+                            <div class="text-sm text-gray-300">37 Çalışma</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Protokoller Tab -->
+        <div id="protokol" class="tab-content">
+            <div class="bg-gray-800 rounded-lg p-8 mb-8">
+                <h2 class="text-3xl font-bold gradient-text mb-6">
+                    <i class="fas fa-clipboard-list mr-3"></i>Seviye Bazlı İnterval Protokolleri
+                </h2>
+
+                <div class="mb-8">
+                    <div class="flex flex-wrap gap-2 mb-6">
+                        <button onclick="showProtocolLevel('baslangic')" class="protocol-level-btn bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-lg transition-all active">
+                            <i class="fas fa-seedling mr-2"></i>Başlangıç
+                        </button>
+                        <button onclick="showProtocolLevel('orta')" class="protocol-level-btn bg-gray-600 hover:bg-gray-700 px-4 py-2 rounded-lg transition-all">
+                            <i class="fas fa-running mr-2"></i>Orta Seviye
+                        </button>
+                        <button onclick="showProtocolLevel('ileri')" class="protocol-level-btn bg-gray-600 hover:bg-gray-700 px-4 py-2 rounded-lg transition-all">
+                            <i class="fas fa-trophy mr-2"></i>İleri Seviye
+                        </button>
+                    </div>
+
+                    <!-- Başlangıç Protokolleri -->
+                    <div id="baslangic" class="protocol-level-content">
+                        <div class="bg-gray-700 p-6 rounded-lg mb-6">
+                            <h3 class="text-xl font-bold text-green-400 mb-4">Başlangıç Seviyesi (0-2 Yıl Deneyim)</h3>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                                <div class="bg-gray-600 p-3 rounded">
+                                    <strong class="text-yellow-400">Frekans:</strong> Haftada 1-2 seans
+                                </div>
+                                <div class="bg-gray-600 p-3 rounded">
+                                    <strong class="text-yellow-400">Şiddet:</strong> %85-90 5k pace
+                                </div>
+                                <div class="bg-gray-600 p-3 rounded">
+                                    <strong class="text-yellow-400">Süre:</strong> 8-15 dakika toplam
+                                </div>
+                                <div class="bg-gray-600 p-3 rounded">
+                                    <strong class="text-yellow-400">Dinlenme:</strong> 1:1 veya 1:2 oranı
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                            <div class="protocol-card p-6 rounded-lg">
+                                <h4 class="text-lg font-bold text-blue-400 mb-3">
+                                    <i class="fas fa-play mr-2"></i>Temel Başlangıç
+                                </h4>
+                                <div class="space-y-2 text-gray-300">
+                                    <p><strong>Isınma:</strong> 10 dk kolay koşu</p>
+                                    <p><strong>Ana Set:</strong> 6 x 2 dk (%85 5k pace)</p>
+                                    <p><strong>Dinlenme:</strong> 2 dk kolay koşu</p>
+                                    <p><strong>Soğuma:</strong> 10 dk kolay koşu</p>
+                                </div>
+                            </div>
+
+                            <div class="protocol-card p-6 rounded-lg">
+                                <h4 class="text-lg font-bold text-blue-400 mb-3">
+                                    <i class="fas fa-clock mr-2"></i>Kısa İntervallar
+                                </h4>
+                                <div class="space-y-2 text-gray-300">
+                                    <p><strong>Isınma:</strong> 10 dk + dinamik hareketler</p>
+                                    <p><strong>Ana Set:</strong> 8 x 1 dk (%90 5k pace)</p>
+                                    <p><strong>Dinlenme:</strong> 90 sn kolay koşu</p>
+                                    <p><strong>Soğuma:</strong> 10 dk kolay koşu</p>
+                                </div>
+                            </div>
+
+                            <div class="protocol-card p-6 rounded-lg">
+                                <h4 class="text-lg font-bold text-blue-400 mb-3">
+                                    <i class="fas fa-chart-line mr-2"></i>Progresif Sistem
+                                </h4>
+                                <div class="space-y-2 text-gray-300">
+                                    <p><strong>Hafta 1-2:</strong> 4 x 2 dk</p>
+                                    <p><strong>Hafta 3-4:</strong> 5 x 2 dk</p>
+                                    <p><strong>Hafta 5-6:</strong> 6 x 2 dk</p>
+                                    <p><strong>Hafta 7-8:</strong> 4 x 3 dk</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Orta Seviye Protokolleri -->
+                    <div id="orta" class="protocol-level-content" style="display: none;">
+                        <div class="bg-gray-700 p-6 rounded-lg mb-6">
+                            <h3 class="text-xl font-bold text-yellow-400 mb-4">Orta Seviye (2-5 Yıl Deneyim)</h3>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                                <div class="bg-gray-600 p-3 rounded">
+                                    <strong class="text-yellow-400">Frekans:</strong> Haftada 2-3 seans
+                                </div>
+                                <div class="bg-gray-600 p-3 rounded">
+                                    <strong class="text-yellow-400">Şiddet:</strong> %88-95 5k pace (CS-)
+                                </div>
+                                <div class="bg-gray-600 p-3 rounded">
+                                    <strong class="text-yellow-400">Süre:</strong> 15-25 dakika toplam
+                                </div>
+                                <div class="bg-gray-600 p-3 rounded">
+                                    <strong class="text-yellow-400">Çeşitlilik:</strong> Farklı mesafe/süre
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                            <div class="protocol-card p-6 rounded-lg">
+                                <h4 class="text-lg font-bold text-yellow-400 mb-3">
+                                    <i class="fas fa-lungs mr-2"></i>VO2max Geliştirme
+                                </h4>
+                                <div class="space-y-2 text-gray-300">
+                                    <p><strong>Isınma:</strong> 15 dk + stride'lar</p>
+                                    <p><strong>Ana Set:</strong> 5 x 3 dk (%92 5k pace)</p>
+                                    <p><strong>Dinlenme:</strong> 90 sn kolay koşu</p>
+                                    <p><strong>Soğuma:</strong> 10 dk kolay koşu</p>
+                                </div>
+                            </div>
+
+                            <div class="protocol-card p-6 rounded-lg">
+                                <h4 class="text-lg font-bold text-yellow-400 mb-3">
+                                    <i class="fas fa-route mr-2"></i>Mesafe Bazlı
+                                </h4>
+                                <div class="space-y-2 text-gray-300">
+                                    <p><strong>Isınma:</strong> 15 dk + dinamik</p>
+                                    <p><strong>Ana Set:</strong> 6 x 800m (3k pace)</p>
+                                    <p><strong>Dinlenme:</strong> 400m kolay koşu</p>
+                                    <p><strong>Soğuma:</strong> 10 dk kolay koşu</p>
+                                </div>
+                            </div>
+
+                            <div class="protocol-card p-6 rounded-lg">
+                                <h4 class="text-lg font-bold text-yellow-400 mb-3">
+                                    <i class="fas fa-layer-group mr-2"></i>Zatopek Tarzı
+                                </h4>
+                                <div class="space-y-2 text-gray-300">
+                                    <p><strong>Ana Set:</strong> 3x200m + 8x400m + 3x200m</p>
+                                    <p><strong>200m:</strong> Mile pace</p>
+                                    <p><strong>400m:</strong> 3-5k pace</p>
+                                    <p><strong>Dinlenme:</strong> 200m kolay koşu</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- İleri Seviye Protokolleri -->
+                    <div id="ileri" class="protocol-level-content" style="display: none;">
+                        <div class="bg-gray-700 p-6 rounded-lg mb-6">
+                            <h3 class="text-xl font-bold text-red-400 mb-4">İleri Seviye (5+ Yıl Deneyim)</h3>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                                <div class="bg-gray-600 p-3 rounded">
+                                    <strong class="text-yellow-400">Frekans:</strong> Haftada 3-4 seans
+                                </div>
+                                <div class="bg-gray-600 p-3 rounded">
+                                    <strong class="text-yellow-400">Şiddet:</strong> %90-105 5k pace (CS+/-)
+                                </div>
+                                <div class="bg-gray-600 p-3 rounded">
+                                    <strong class="text-yellow-400">Süre:</strong> 25-45 dakika toplam
+                                </div>
+                                <div class="bg-gray-600 p-3 rounded">
+                                    <strong class="text-yellow-400">Odak:</strong> Yarış spesifik hedefler
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                            <div class="protocol-card p-6 rounded-lg">
+                                <h4 class="text-lg font-bold text-red-400 mb-3">
+                                    <i class="fas fa-fire mr-2"></i>Uzun VO2max
+                                </h4>
+                                <div class="space-y-2 text-gray-300">
+                                    <p><strong>Isınma:</strong> 20 dk progresif + stride'lar</p>
+                                    <p><strong>Ana Set:</strong> 4 x 5 dk (%95 5k pace)</p>
+                                    <p><strong>Dinlenme:</strong> 2.5 dk kolay koşu</p>
+                                    <p><strong>Soğuma:</strong> 15 dk kolay koşu</p>
+                                </div>
+                            </div>
+
+                            <div class="protocol-card p-6 rounded-lg">
+                                <h4 class="text-lg font-bold text-red-400 mb-3">
+                                    <i class="fas fa-stairs mr-2"></i>Ladder (Merdiven)
+                                </h4>
+                                <div class="space-y-2 text-gray-300">
+                                    <p><strong>Ana Set:</strong> 1-2-3-4-3-2-1 dk</p>
+                                    <p><strong>Tempo:</strong> 5k pace</p>
+                                    <p><strong>Dinlenme:</strong> Çalışma süresi kadar</p>
+                                    <p><strong>Toplam:</strong> 16 dk çalışma</p>
+                                </div>
+                            </div>
+
+                            <div class="protocol-card p-6 rounded-lg">
+                                <h4 class="text-lg font-bold text-red-400 mb-3">
+                                    <i class="fas fa-gauge-high mr-2"></i>Kritik Hız
+                                </h4>
+                                <div class="space-y-2 text-gray-300">
+                                    <p><strong>Ana Set:</strong> 3 x 6 dk</p>
+                                    <p><strong>Tempo:</strong> CS- pace (%93-95 5k)</p>
+                                    <p><strong>Dinlenme:</strong> 90 sn aktif</p>
+                                    <p><strong>Amaç:</strong> Metabolik steady-state</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Ek Protokol Örnekleri -->
+                <div class="bg-gray-700 p-6 rounded-lg mt-8">
+                    <h3 class="text-xl font-bold text-purple-400 mb-4">
+                        <i class="fas fa-plus-circle mr-2"></i>Ek İnterval Protokol Örnekleri
+                    </h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                        <div class="bg-gray-600 p-4 rounded-lg">
+                            <h4 class="font-bold text-blue-400 mb-2">Pyramid Intervals</h4>
+                            <p class="text-sm text-gray-300">1-2-3-4-3-2-1 dk artarak-azalan sistem. Varyasyon sağlar.</p>
+                        </div>
+                        <div class="bg-gray-600 p-4 rounded-lg">
+                            <h4 class="font-bold text-blue-400 mb-2">Descending Intervals</h4>
+                            <p class="text-sm text-gray-300">800-600-400-200m azalan mesafe, artan hız sistemi.</p>
+                        </div>
+                        <div class="bg-gray-600 p-4 rounded-lg">
+                            <h4 class="font-bold text-blue-400 mb-2">Broken Workouts</h4>
+                            <p class="text-sm text-gray-300">2x(3x1000m) gibi bölünmüş uzun intervallar.</p>
+                        </div>
+                        <div class="bg-gray-600 p-4 rounded-lg">
+                            <h4 class="font-bold text-blue-400 mb-2">Cruise Intervals</h4>
+                            <p class="text-sm text-gray-300">6x5dk laktat eşiği civarında tempo intervals.</p>
+                        </div>
+                        <div class="bg-gray-600 p-4 rounded-lg">
+                            <h4 class="font-bold text-blue-400 mb-2">Mixed Modal</h4>
+                            <p class="text-sm text-gray-300">Farklı şiddetleri kombine eden karışık sistem.</p>
+                        </div>
+                        <div class="bg-gray-600 p-4 rounded-lg">
+                            <h4 class="font-bold text-blue-400 mb-2">Fartlek Variations</h4>
+                            <p class="text-sm text-gray-300">Telefondirek, tepe, zamana dayalı varyasyonlar.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Periodizasyon Tab -->
+        <div id="periodizasyon" class="tab-content">
+            <div class="bg-gray-800 rounded-lg p-8 mb-8">
+                <h2 class="text-3xl font-bold gradient-text mb-6">
+                    <i class="fas fa-calendar-alt mr-3"></i>İnterval Antrenmanının Periodizasyonu
+                </h2>
+
+                <!-- Hacim Oranları -->
+                <div class="bg-gray-700 p-6 rounded-lg mb-8">
+                    <h3 class="text-xl font-bold text-blue-400 mb-4">
+                        <i class="fas fa-percentage mr-2"></i>İnterval Antrenmanının Toplam Hacme Oranı
+                    </h3>
+                    <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                        <div class="bg-gray-600 p-4 rounded-lg text-center">
+                            <div class="text-2xl font-bold text-green-400">5-10%</div>
+                            <div class="text-sm text-gray-300">Başlangıç Seviyesi</div>
+                        </div>
+                        <div class="bg-gray-600 p-4 rounded-lg text-center">
+                            <div class="text-2xl font-bold text-yellow-400">10-15%</div>
+                            <div class="text-sm text-gray-300">Orta Seviye</div>
+                        </div>
+                        <div class="bg-gray-600 p-4 rounded-lg text-center">
+                            <div class="text-2xl font-bold text-orange-400">15-20%</div>
+                            <div class="text-sm text-gray-300">İleri Seviye</div>
+                        </div>
+                        <div class="bg-gray-600 p-4 rounded-lg text-center">
+                            <div class="text-2xl font-bold text-red-400">20-25%</div>
+                            <div class="text-sm text-gray-300">Elite Düzey</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Makro Periodizasyon -->
+                <div class="bg-gray-700 p-6 rounded-lg mb-8">
+                    <h3 class="text-xl font-bold text-purple-400 mb-4">
+                        <i class="fas fa-calendar-year mr-2"></i>Makro Periodizasyon (Yıllık Plan)
+                    </h3>
+                    <div class="space-y-4">
+                        <div class="flex flex-col md:flex-row md:items-center gap-4 bg-gray-600 p-4 rounded-lg">
+                            <div class="md:w-1/4">
+                                <div class="font-bold text-blue-400">Hazırlık Dönemi</div>
+                                <div class="text-sm text-gray-300">16-20 hafta</div>
+                            </div>
+                            <div class="md:w-3/4">
+                                <div class="text-sm text-gray-300">
+                                    <strong class="text-yellow-400">Interval Oranı:</strong> %5-10 |
+                                    <strong class="text-yellow-400">Odak:</strong> Aerobik baz, uzun intervallar |
+                                    <strong class="text-yellow-400">Şiddet:</strong> %85-90 5k pace
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="flex flex-col md:flex-row md:items-center gap-4 bg-gray-600 p-4 rounded-lg">
+                            <div class="md:w-1/4">
+                                <div class="font-bold text-yellow-400">Yarışma Öncesi</div>
+                                <div class="text-sm text-gray-300">4-6 hafta</div>
+                            </div>
+                            <div class="md:w-3/4">
+                                <div class="text-sm text-gray-300">
+                                    <strong class="text-yellow-400">Interval Oranı:</strong> %15-20 |
+                                    <strong class="text-yellow-400">Odak:</strong> VO2max, anaerobik güç |
+                                    <strong class="text-yellow-400">Şiddet:</strong> %90-105 5k pace
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="flex flex-col md:flex-row md:items-center gap-4 bg-gray-600 p-4 rounded-lg">
+                            <div class="md:w-1/4">
+                                <div class="font-bold text-red-400">Yarışma</div>
+                                <div class="text-sm text-gray-300">4-8 hafta</div>
+                            </div>
+                            <div class="md:w-3/4">
+                                <div class="text-sm text-gray-300">
+                                    <strong class="text-yellow-400">Interval Oranı:</strong> %10-15 |
+                                    <strong class="text-yellow-400">Odak:</strong> Yarışa özel hız |
+                                    <strong class="text-yellow-400">Kalite:</strong> Düşük hacim, yüksek kalite
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="flex flex-col md:flex-row md:items-center gap-4 bg-gray-600 p-4 rounded-lg">
+                            <div class="md:w-1/4">
+                                <div class="font-bold text-green-400">Geçiş</div>
+                                <div class="text-sm text-gray-300">2-4 hafta</div>
+                            </div>
+                            <div class="md:w-3/4">
+                                <div class="text-sm text-gray-300">
+                                    <strong class="text-yellow-400">Interval Oranı:</strong> %0-5 |
+                                    <strong class="text-yellow-400">Odak:</strong> Aktif dinlenme |
+                                    <strong class="text-yellow-400">Aktivite:</strong> Cross-training, fartlek
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Mezo Periodizasyon -->
+                <div class="bg-gray-700 p-6 rounded-lg mb-8">
+                    <h3 class="text-xl font-bold text-orange-400 mb-4">
+                        <i class="fas fa-calendar-month mr-2"></i>Mezo Periodizasyon (4 Haftalık Bloklar)
+                    </h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="bg-gray-600 p-4 rounded-lg">
+                            <h4 class="font-bold text-blue-400 mb-3">3:1 Yoğun/Hafif Sistemi</h4>
+                            <div class="space-y-2">
+                                <div class="flex justify-between">
+                                    <span>Hafta 1:</span> <span class="text-green-400">Yoğun (%100)</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span>Hafta 2:</span> <span class="text-green-400">Yoğun (%105)</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span>Hafta 3:</span> <span class="text-green-400">Yoğun (%110)</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span>Hafta 4:</span> <span class="text-blue-400">Hafif (%70)</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="bg-gray-600 p-4 rounded-lg">
+                            <h4 class="font-bold text-purple-400 mb-3">Progresif Yüklenme</h4>
+                            <div class="space-y-2">
+                                <div class="flex justify-between">
+                                    <span>Hafta 1:</span> <span class="text-yellow-400">Hacim Odaklı</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span>Hafta 2:</span> <span class="text-yellow-400">Şiddet Artışı</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span>Hafta 3:</span> <span class="text-yellow-400">Yoğunluk Pik</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span>Hafta 4:</span> <span class="text-yellow-400">Deload</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Mikro Periodizasyon -->
+                <div class="bg-gray-700 p-6 rounded-lg">
+                    <h3 class="text-xl font-bold text-green-400 mb-4">
+                        <i class="fas fa-calendar-week mr-2"></i>Mikro Periodizasyon (Haftalık Plan)
+                    </h3>
+                    <div class="space-y-4">
+                        <div class="bg-gray-600 p-4 rounded-lg">
+                            <h4 class="font-bold text-blue-400 mb-3">3 Günlük İnterval Rotasyonu</h4>
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                <div class="text-center">
+                                    <div class="font-bold text-yellow-400">Gün 1</div>
+                                    <div class="text-sm text-gray-300">VO2max İntervalları</div>
+                                    <div class="text-xs text-gray-400">(Orta mesafe odaklı)</div>
+                                </div>
+                                <div class="text-center">
+                                    <div class="font-bold text-yellow-400">Gün 2</div>
+                                    <div class="text-sm text-gray-300">Tempo/Laktat Eşiği</div>
+                                    <div class="text-xs text-gray-400">(Uzun mesafe odaklı)</div>
+                                </div>
+                                <div class="text-center">
+                                    <div class="font-bold text-yellow-400">Gün 3</div>
+                                    <div class="text-sm text-gray-300">Nöromüsküler/Hız</div>
+                                    <div class="text-xs text-gray-400">(Kısa mesafe odaklı)</div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-gray-600 p-4 rounded-lg">
+                            <h4 class="font-bold text-purple-400 mb-3">Toparlanma Planlaması</h4>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div>
+                                    <strong class="text-yellow-400">İnterval Günü + 1:</strong>
+                                    <p class="text-sm text-gray-300">Kolay koşu (30-60 dk) veya cross-training</p>
+                                </div>
+                                <div>
+                                    <strong class="text-yellow-400">İnterval Günü + 2:</strong>
+                                    <p class="text-sm text-gray-300">Orta tempolu koşu veya tam dinlenme</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="bg-red-900 p-4 rounded-lg border border-red-600">
+                            <h4 class="font-bold text-red-400 mb-2">
+                                <i class="fas fa-exclamation-triangle mr-2"></i>Kritik Kural
+                            </h4>
+                            <p class="text-gray-300">Yoğun interval seansları arasında <strong class="text-yellow-400">minimum 48-72 saat</strong> dinlenme bırakın. Bu süre yaralanma önleme ve adaptasyon için hayati önem taşır.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Mesafe Bazlı Tab -->
+        <div id="mesafe" class="tab-content">
+            <div class="bg-gray-800 rounded-lg p-8 mb-8">
+                <h2 class="text-3xl font-bold gradient-text mb-6">
+                    <i class="fas fa-route mr-3"></i>Mesafe Bazlı Spesifik İnterval Programları
+                </h2>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- 5000m Protokolleri -->
+                    <div class="bg-gray-700 p-6 rounded-lg">
+                        <h3 class="text-xl font-bold text-red-400 mb-4">
+                            <i class="fas fa-fire mr-2"></i>5000m İçin Optimal İntervallar
+                        </h3>
+                        <p class="text-gray-300 mb-4"><strong>Odak:</strong> VO2max gelişimi ve nöromüsküler güç</p>
+                        
+                        <div class="space-y-4">
+                            <div class="bg-gray-600 p-4 rounded-lg">
+                                <h4 class="font-bold text-blue-400 mb-2">Klasik 5k Hazırlığı</h4>
+                                <p class="text-sm text-gray-300">12 x 400m (5k pace)</p>
+                                <p class="text-sm text-gray-300">Dinlenme: 200m kolay koşu (90 sn)</p>
+                                <p class="text-sm text-gray-300">Frekans: Haftada 1-2 kez</p>
+                            </div>
+                            
+                            <div class="bg-gray-600 p-4 rounded-lg">
+                                <h4 class="font-bold text-blue-400 mb-2">Progresif Sistem</h4>
+                                <p class="text-sm text-gray-300">1000-800-600-400-200m</p>
+                                <p class="text-sm text-gray-300">Başlangıç: 5k pace, her tekrar %1-2 hızlanma</p>
+                                <p class="text-sm text-gray-300">Dinlenme: Mesafe ile orantılı (1-3 dk)</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 10000m Protokolleri -->
+                    <div class="bg-gray-700 p-6 rounded-lg">
+                        <h3 class="text-xl font-bold text-orange-400 mb-4">
+                            <i class="fas fa-road mr-2"></i>10000m İçin Optimal İntervallar
+                        </h3>
+                        <p class="text-gray-300 mb-4"><strong>Odak:</strong> Aerobik güç ve laktat toleransı</p>
+                        
+                        <div class="space-y-4">
+                            <div class="bg-gray-600 p-4 rounded-lg">
+                                <h4 class="font-bold text-blue-400 mb-2">Tempo-İnterval Karışımı</h4>
+                                <p class="text-sm text-gray-300">8 x 1000m (10k pace)</p>
+                                <p class="text-sm text-gray-300">Son 3 tekrar: 5k pace'e çıkma</p>
+                                <p class="text-sm text-gray-300">Dinlenme: 200m kolay koşu</p>
+                            </div>
+                            
+                            <div class="bg-gray-600 p-4 rounded-lg">
+                                <h4 class="font-bold text-blue-400 mb-2">Kritik Hız Odaklı</h4>
+                                <p class="text-sm text-gray-300">4 x 6 dakika (kritik hız, ~%95 5k pace)</p>
+                                <p class="text-sm text-gray-300">Dinlenme: 90 saniye kolay koşu</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Yarı Maraton Protokolleri -->
+                    <div class="bg-gray-700 p-6 rounded-lg">
+                        <h3 class="text-xl font-bold text-yellow-400 mb-4">
+                            <i class="fas fa-medal mr-2"></i>Yarı Maraton İçin Optimal İntervallar
+                        </h3>
+                        <p class="text-gray-300 mb-4"><strong>Odak:</strong> Laktat eşiği gelişimi ve dayanıklılık</p>
+                        
+                        <div class="space-y-4">
+                            <div class="bg-gray-600 p-4 rounded-lg">
+                                <h4 class="font-bold text-blue-400 mb-2">Tempo İntervalları</h4>
+                                <p class="text-sm text-gray-300">5 x 2 mil (yarı maraton pace)</p>
+                                <p class="text-sm text-gray-300">Dinlenme: 2-3 dakika kolay koşu</p>
+                            </div>
+                            
+                            <div class="bg-gray-600 p-4 rounded-lg">
+                                <h4 class="font-bold text-blue-400 mb-2">Progresif Tempo</h4>
+                                <p class="text-sm text-gray-300">4 x 8 dakika</p>
+                                <p class="text-sm text-gray-300">Dk 1-3: Yarı maraton pace, Dk 4-6: 10k pace, Dk 7-8: 5k pace</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Maraton Protokolleri -->
+                    <div class="bg-gray-700 p-6 rounded-lg">
+                        <h3 class="text-xl font-bold text-green-400 mb-4">
+                            <i class="fas fa-trophy mr-2"></i>Maraton İçin Optimal İntervallar
+                        </h3>
+                        <p class="text-gray-300 mb-4"><strong>Odak:</strong> Aerobik kapasite, yakıt verimliliği, mental dayanıklılık</p>
+                        
+                        <div class="space-y-4">
+                            <div class="bg-gray-600 p-4 rounded-lg">
+                                <h4 class="font-bold text-blue-400 mb-2">Yasso 800s (Klasik)</h4>
+                                <p class="text-sm text-gray-300">8-10 x 800m</p>
+                                <p class="text-sm text-gray-300">Tempo: Maraton hedef zamanı (3:30 maraton → 3:30'luk 800m)</p>
+                                <p class="text-sm text-gray-300">Dinlenme: 400m kolay koşu/yürüyüş</p>
+                            </div>
+                            
+                            <div class="bg-gray-600 p-4 rounded-lg">
+                                <h4 class="font-bold text-blue-400 mb-2">Uzun Tempo İntervalları</h4>
+                                <p class="text-sm text-gray-300">3 x 3 mil (maraton pace + 10-15 sn)</p>
+                                <p class="text-sm text-gray-300">Dinlenme: 3-4 dakika kolay koşu</p>
+                            </div>
+                            
+                            <div class="bg-gray-600 p-4 rounded-lg">
+                                <h4 class="font-bold text-blue-400 mb-2">Maraton Simülasyonu</h4>
+                                <p class="text-sm text-gray-300">2 x 5 mil</p>
+                                <p class="text-sm text-gray-300">İlk 5 mil: Maraton pace, İkinci 5 mil: Maraton pace - 10 sn</p>
+                                <p class="text-sm text-gray-300">Dinlenme: 3-4 dakika kolay koşu</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Mesafe Seçim Rehberi -->
+                <div class="bg-gray-700 p-6 rounded-lg mt-8">
+                    <h3 class="text-xl font-bold text-purple-400 mb-4">
+                        <i class="fas fa-compass mr-2"></i>Hangi Mesafe İçin Hangi İnterval?
+                    </h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="space-y-3">
+                            <div class="flex items-center gap-3">
+                                <div class="w-3 h-3 bg-red-500 rounded-full"></div>
+                                <span class="text-gray-300"><strong class="text-red-400">800-1500m:</strong> Kısa intervallar (200-400m), yüksek şiddet</span>
+                            </div>
+                            <div class="flex items-center gap-3">
+                                <div class="w-3 h-3 bg-orange-500 rounded-full"></div>
+                                <span class="text-gray-300"><strong class="text-orange-400">3000-5000m:</strong> Orta intervallar (400-1200m), VO2max odaklı</span>
+                            </div>
+                            <div class="flex items-center gap-3">
+                                <div class="w-3 h-3 bg-yellow-500 rounded-full"></div>
+                                <span class="text-gray-300"><strong class="text-yellow-400">10000m:</strong> Uzun intervallar (1000-2000m), laktat eşiği</span>
+                            </div>
+                        </div>
+                        <div class="space-y-3">
+                            <div class="flex items-center gap-3">
+                                <div class="w-3 h-3 bg-green-500 rounded-full"></div>
+                                <span class="text-gray-300"><strong class="text-green-400">Yarı Maraton:</strong> Tempo intervallar (8-20 dk), threshold pace</span>
+                            </div>
+                            <div class="flex items-center gap-3">
+                                <div class="w-3 h-3 bg-blue-500 rounded-full"></div>
+                                <span class="text-gray-300"><strong class="text-blue-400">Maraton:</strong> Uzun tempo (3-8 mil), maraton pace + destekleyici</span>
+                            </div>
+                            <div class="flex items-center gap-3">
+                                <div class="w-3 h-3 bg-purple-500 rounded-full"></div>
+                                <span class="text-gray-300"><strong class="text-purple-400">Ultra:</strong> Çok uzun steady runs, tempo blokları</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Riskler Tab -->
+        <div id="risk" class="tab-content">
+            <div class="bg-gray-800 rounded-lg p-8 mb-8">
+                <h2 class="text-3xl font-bold gradient-text mb-6">
+                    <i class="fas fa-exclamation-triangle mr-3"></i>Riskler ve Kontraendikasyonlar
+                </h2>
+
+                <!-- Mutlak Kontraendikasyonlar -->
+                <div class="bg-red-900 p-6 rounded-lg mb-8 border border-red-600">
+                    <h3 class="text-xl font-bold text-red-400 mb-4">
+                        <i class="fas fa-ban mr-2"></i>Mutlak Kontraendikasyonlar (Kesinlikle Yapılmamalı)
+                    </h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <h4 class="font-bold text-yellow-400 mb-3">Kardiyovasküler Durumlar</h4>
+                            <ul class="space-y-2 text-gray-300">
+                                <li><i class="fas fa-times text-red-400 mr-2"></i>Akut miyokard enfarktüsü (son 5 gün)</li>
+                                <li><i class="fas fa-times text-red-400 mr-2"></i>Kontrolsüz aritmiler</li>
+                                <li><i class="fas fa-times text-red-400 mr-2"></i>Ciddi aort stenozu</li>
+                                <li><i class="fas fa-times text-red-400 mr-2"></i>Kontrolsüz hipertansiyon (>180/110 mmHg)</li>
+                                <li><i class="fas fa-times text-red-400 mr-2"></i>Akut perikardit/miokärdit</li>
+                            </ul>
+                        </div>
+                        <div>
+                            <h4 class="font-bold text-yellow-400 mb-3">Diğer Durumlar</h4>
+                            <ul class="space-y-2 text-gray-300">
+                                <li><i class="fas fa-times text-red-400 mr-2"></i>Kontrolsüz diabetes (kan şekeri >250 mg/dL)</li>
+                                <li><i class="fas fa-times text-red-400 mr-2"></i>Akut febril hastalık (ateş >38°C)</li>
+                                <li><i class="fas fa-times text-red-400 mr-2"></i>Ciddi anemi (Hb <8 g/dL)</li>
+                                <li><i class="fas fa-times text-red-400 mr-2"></i>Akut kas-iskelet yaralanması</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Relatif Kontraendikasyonlar -->
+                <div class="bg-yellow-900 p-6 rounded-lg mb-8 border border-yellow-600">
+                    <h3 class="text-xl font-bold text-yellow-400 mb-4">
+                        <i class="fas fa-exclamation-circle mr-2"></i>Relatif Kontraendikasyonlar (Dikkatli Yaklaşım)
+                    </h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <h4 class="font-bold text-orange-400 mb-3">Risk Faktörleri</h4>
+                            <ul class="space-y-2 text-gray-300">
+                                <li><i class="fas fa-exclamation text-yellow-400 mr-2"></i>40+ yaş sedanter erkekler</li>
+                                <li><i class="fas fa-exclamation text-yellow-400 mr-2"></i>50+ yaş sedanter kadınlar</li>
+                                <li><i class="fas fa-exclamation text-yellow-400 mr-2"></i>Aile hikayesinde erken KVH</li>
+                                <li><i class="fas fa-exclamation text-yellow-400 mr-2"></i>Kontrollü hipertansiyon</li>
+                            </ul>
+                        </div>
+                        <div>
+                            <h4 class="font-bold text-orange-400 mb-3">Özel Durumlar</h4>
+                            <ul class="space-y-2 text-gray-300">
+                                <li><i class="fas fa-exclamation text-yellow-400 mr-2"></i>İyi kontrollü diabetes</li>
+                                <li><i class="fas fa-exclamation text-yellow-400 mr-2"></i>Gebelik (2-3. trimester)</li>
+                                <li><i class="fas fa-exclamation text-yellow-400 mr-2"></i>Kronik yorgunluk sendromu</li>
+                                <li><i class="fas fa-exclamation text-yellow-400 mr-2"></i>Son 6-8 hafta cerrahi</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Yaralanma Riskleri -->
+                <div class="bg-gray-700 p-6 rounded-lg mb-8">
+                    <h3 class="text-xl font-bold text-blue-400 mb-4">
+                        <i class="fas fa-user-injured mr-2"></i>Yaralanma Risk Faktörleri ve Önleme
+                    </h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <h4 class="font-bold text-red-400 mb-3">Yüksek Risk Faktörleri</h4>
+                            <ul class="space-y-2 text-gray-300">
+                                <li><i class="fas fa-warning text-red-400 mr-2"></i>Önceki yaralanma öyküsü</li>
+                                <li><i class="fas fa-warning text-red-400 mr-2"></i>Biomekhanik kusurlar</li>
+                                <li><i class="fas fa-warning text-red-400 mr-2"></i>Yetersiz esneklik/mobilite</li>
+                                <li><i class="fas fa-warning text-red-400 mr-2"></i>Çok hızlı progresyon</li>
+                                <li><i class="fas fa-warning text-red-400 mr-2"></i>Yetersiz dinlenme</li>
+                            </ul>
+                        </div>
+                        <div>
+                            <h4 class="font-bold text-green-400 mb-3">Önleme Stratejileri</h4>
+                            <ul class="space-y-2 text-gray-300">
+                                <li><i class="fas fa-check text-green-400 mr-2"></i>Progresif yüklenme (%10 kural)</li>
+                                <li><i class="fas fa-check text-green-400 mr-2"></i>Düzenli kuvvet antrenmanı</li>
+                                <li><i class="fas fa-check text-green-400 mr-2"></i>Proprioseptif egzersizler</li>
+                                <li><i class="fas fa-check text-green-400 mr-2"></i>Beslenme optimizasyonu</li>
+                                <li><i class="fas fa-check text-green-400 mr-2"></i>Uyku kalitesi kontrolü</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Overtraining Belirtileri -->
+                <div class="bg-gray-700 p-6 rounded-lg">
+                    <h3 class="text-xl font-bold text-purple-400 mb-4">
+                        <i class="fas fa-battery-empty mr-2"></i>Overtraining Sendromu Belirtileri
+                    </h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <h4 class="font-bold text-red-400 mb-3">Fizyolojik Belirtiler</h4>
+                            <ul class="space-y-2 text-gray-300">
+                                <li><i class="fas fa-heart mr-2 text-red-400"></i>Dinlenik kalp hızında artış (>5-7 atım/dak)</li>
+                                <li><i class="fas fa-chart-line-down mr-2 text-red-400"></i>Performansta düşüş (>%5)</li>
+                                <li><i class="fas fa-muscle mr-2 text-red-400"></i>Sürekli kas ağrısı ve sertlik</li>
+                                <li><i class="fas fa-virus mr-2 text-red-400"></i>Sık hastalık geçirme</li>
+                                <li><i class="fas fa-bed mr-2 text-red-400"></i>Uyku kalitesinde bozulma</li>
+                            </ul>
+                        </div>
+                        <div>
+                            <h4 class="font-bold text-orange-400 mb-3">Psikolojik Belirtiler</h4>
+                            <ul class="space-y-2 text-gray-300">
+                                <li><i class="fas fa-frown mr-2 text-orange-400"></i>Motivasyon kaybı</li>
+                                <li><i class="fas fa-angry mr-2 text-orange-400"></i>İrritabilite</li>
+                                <li><i class="fas fa-sad-tear mr-2 text-orange-400"></i>Depresif duygudürum</li>
+                                <li><i class="fas fa-brain mr-2 text-orange-400"></i>Konsantrasyon güçlüğü</li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-green-900 p-4 rounded-lg mt-6 border border-green-600">
+                        <h4 class="font-bold text-green-400 mb-2">
+                            <i class="fas fa-shield-alt mr-2"></i>Önleme ve Yönetim
+                        </h4>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-gray-300">
+                            <div>
+                                <p><strong>• Planlı dinlenme:</strong> Her 3-4 hafta bir deload haftası</p>
+                                <p><strong>• HRV monitöring:</strong> Günlük kalp hızı değişkenliği takibi</p>
+                            </div>
+                            <div>
+                                <p><strong>• Subjektif takip:</strong> Günlük iyilik hali skorlaması</p>
+                                <p><strong>• Beslenme/hidrasyon:</strong> Optimal recovery desteği</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Hatalar Tab -->
+        <div id="hatalar" class="tab-content">
+            <div class="bg-gray-800 rounded-lg p-8 mb-8">
+                <h2 class="text-3xl font-bold gradient-text mb-6">
+                    <i class="fas fa-times-circle mr-3"></i>Sık Yapılan Hatalar ve Dikkat Edilecek Noktalar
+                </h2>
+
+                <!-- Sık Yapılan Hatalar -->
+                <div class="bg-red-900 p-6 rounded-lg mb-8 border border-red-600">
+                    <h3 class="text-xl font-bold text-red-400 mb-6">
+                        <i class="fas fa-exclamation-triangle mr-2"></i>En Sık Yapılan 10 Kritik Hata
+                    </h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="space-y-4">
+                            <div class="bg-red-800 p-4 rounded-lg">
+                                <h4 class="font-bold text-yellow-400 mb-2">
+                                    <i class="fas fa-rocket mr-2"></i>1. Çok Hızlı Progresyon
+                                </h4>
+                                <p class="text-gray-300 text-sm">Haftalık %10'dan fazla artış yapmak. İlk haftadan itibaren zor seanslar yapmak.</p>
+                                <div class="bg-red-700 p-2 rounded mt-2">
+                                    <strong class="text-red-300">Sonuç:</strong> <span class="text-gray-300">Yaralanma, overtraining, motivasyon kaybı</span>
+                                </div>
+                            </div>
+
+                            <div class="bg-red-800 p-4 rounded-lg">
+                                <h4 class="font-bold text-yellow-400 mb-2">
+                                    <i class="fas fa-stopwatch mr-2"></i>2. Yetersiz Dinlenme
+                                </h4>
+                                <p class="text-gray-300 text-sm">Dinlenme sürelerini kısaltmak, ardışık günlerde yoğun interval yapmak.</p>
+                                <div class="bg-red-700 p-2 rounded mt-2">
+                                    <strong class="text-red-300">Sonuç:</strong> <span class="text-gray-300">Kalite düşüşü, laktat birikim</span>
+                                </div>
+                            </div>
+
+                            <div class="bg-red-800 p-4 rounded-lg">
+                                <h4 class="font-bold text-yellow-400 mb-2">
+                                    <i class="fas fa-tachometer-alt mr-2"></i>3. Yanlış Şiddet Seçimi
+                                </h4>
+                                <p class="text-gray-300 text-sm">İlk tekrarları çok hızlı başlamak, sabit tempo tutamamak.</p>
+                                <div class="bg-red-700 p-2 rounded mt-2">
+                                    <strong class="text-red-300">Sonuç:</strong> <span class="text-gray-300">Erken yorgunluk, hedefe ulaşamama</span>
+                                </div>
+                            </div>
+
+                            <div class="bg-red-800 p-4 rounded-lg">
+                                <h4 class="font-bold text-yellow-400 mb-2">
+                                    <i class="fas fa-running mr-2"></i>4. Form Bozukluğu
+                                </h4>
+                                <p class="text-gray-300 text-sm">Yorgunlukla birlikte tekniği göz ardı etmek, hızın öncelik olması.</p>
+                                <div class="bg-red-700 p-2 rounded mt-2">
+                                    <strong class="text-red-300">Sonuç:</strong> <span class="text-gray-300">Yaralanma riski, verimlilik kaybı</span>
+                                </div>
+                            </div>
+
+                            <div class="bg-red-800 p-4 rounded-lg">
+                                <h4 class="font-bold text-yellow-400 mb-2">
+                                    <i class="fas fa-thermometer-hot mr-2"></i>5. Isınma/Soğuma İhmali
+                                </h4>
+                                <p class="text-gray-300 text-sm">Yetersiz ısınma ile yoğun çalışmaya başlama, soğumayı atlamak.</p>
+                                <div class="bg-red-700 p-2 rounded mt-2">
+                                    <strong class="text-red-300">Sonuç:</strong> <span class="text-gray-300">Akut yaralanma, kötü toparlanma</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="space-y-4">
+                            <div class="bg-red-800 p-4 rounded-lg">
+                                <h4 class="font-bold text-yellow-400 mb-2">
+                                    <i class="fas fa-bed mr-2"></i>6. Recovery Göz Ardı Etme
+                                </h4>
+                                <p class="text-gray-300 text-sm">Uyku, beslenme, hidrasyon gibi toparlanma faktörlerini ihmal etmek.</p>
+                                <div class="bg-red-700 p-2 rounded mt-2">
+                                    <strong class="text-red-300">Sonuç:</strong> <span class="text-gray-300">Adaptasyon yetersizliği, performans stagnation</span>
+                                </div>
+                            </div>
+
+                            <div class="bg-red-800 p-4 rounded-lg">
+                                <h4 class="font-bold text-yellow-400 mb-2">
+                                    <i class="fas fa-calendar-times mr-2"></i>7. Rastgele Programlama
+                                </h4>
+                                <p class="text-gray-300 text-sm">Plansız, günlük duygu durumuna göre interval seçmek.</p>
+                                <div class="bg-red-700 p-2 rounded mt-2">
+                                    <strong class="text-red-300">Sonuç:</strong> <span class="text-gray-300">Dengesiz gelişim, hedeften sapma</span>
+                                </div>
+                            </div>
+
+                            <div class="bg-red-800 p-4 rounded-lg">
+                                <h4 class="font-bold text-yellow-400 mb-2">
+                                    <i class="fas fa-deaf mr-2"></i>8. Vücut Sinyallerini İhmal
+                                </h4>
+                                <p class="text-gray-300 text-sm">Ağrı, aşırı yorgunluk belirtilerini görmezden gelmek.</p>
+                                <div class="bg-red-700 p-2 rounded mt-2">
+                                    <strong class="text-red-300">Sonuç:</strong> <span class="text-gray-300">Ciddi yaralanma, uzun süre koşamamak</span>
+                                </div>
+                            </div>
+
+                            <div class="bg-red-800 p-4 rounded-lg">
+                                <h4 class="font-bold text-yellow-400 mb-2">
+                                    <i class="fas fa-copy mr-2"></i>9. Başkalarını Körü Körüne Taklit
+                                </h4>
+                                <p class="text-gray-300 text-sm">Elite sporcuların programlarını direkt kopyalamak.</p>
+                                <div class="bg-red-700 p-2 rounded mt-2">
+                                    <strong class="text-red-300">Sonuç:</strong> <span class="text-gray-300">Seviye uyumsuzluğu, overload</span>
+                                </div>
+                            </div>
+
+                            <div class="bg-red-800 p-4 rounded-lg">
+                                <h4 class="font-bold text-yellow-400 mb-2">
+                                    <i class="fas fa-thermometer-three-quarters mr-2"></i>10. Hava Koşullarını İhmal
+                                </h4>
+                                <p class="text-gray-300 text-sm">Sıcak/soğuk/rüzgarlı havalarda tempo ayarı yapmamak.</p>
+                                <div class="bg-red-700 p-2 rounded mt-2">
+                                    <strong class="text-red-300">Sonuç:</strong> <span class="text-gray-300">Hipertermia, hipotermia, performans düşüşü</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Dikkat Edilecek Noktalar -->
+                <div class="bg-gray-700 p-6 rounded-lg mb-8">
+                    <h3 class="text-xl font-bold text-green-400 mb-6">
+                        <i class="fas fa-clipboard-check mr-2"></i>İnterval Yaparken Dikkat Edilecek Noktalar
+                    </h3>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        <!-- Isınma Protokolü -->
+                        <div class="bg-gray-600 p-4 rounded-lg">
+                            <h4 class="font-bold text-blue-400 mb-3">
+                                <i class="fas fa-fire mr-2"></i>Isınma Protokolü
+                            </h4>
+                            <ul class="space-y-2 text-sm text-gray-300">
+                                <li><i class="fas fa-check text-green-400 mr-2"></i>10-15 dk progresif kolay koşu</li>
+                                <li><i class="fas fa-check text-green-400 mr-2"></i>5 dk dinamik ısınma hareketleri</li>
+                                <li><i class="fas fa-check text-green-400 mr-2"></i>4-6 adet stride (80m progresif)</li>
+                                <li><i class="fas fa-check text-green-400 mr-2"></i>Kalp hızının 120+ atım/dak olması</li>
+                            </ul>
+                        </div>
+
+                        <!-- Dinlenme Hesaplaması -->
+                        <div class="bg-gray-600 p-4 rounded-lg">
+                            <h4 class="font-bold text-yellow-400 mb-3">
+                                <i class="fas fa-stopwatch mr-2"></i>Dinlenme Hesaplaması
+                            </h4>
+                            <ul class="space-y-2 text-sm text-gray-300">
+                                <li><i class="fas fa-check text-green-400 mr-2"></i>Kısa intervallar: 1:1 - 1:2 oranı</li>
+                                <li><i class="fas fa-check text-green-400 mr-2"></i>Uzun intervallar: 1:0.5 - 1:1 oranı</li>
+                                <li><i class="fas fa-check text-green-400 mr-2"></i>Kalp hızının 120-130 atım/dak'a düşmesi</li>
+                                <li><i class="fas fa-check text-green-400 mr-2"></i>Nefes alışverişinin normalleşmesi</li>
+                            </ul>
+                        </div>
+
+                        <!-- Kalp Hızı Monitörü -->
+                        <div class="bg-gray-600 p-4 rounded-lg">
+                            <h4 class="font-bold text-purple-400 mb-3">
+                                <i class="fas fa-heart mr-2"></i>Kalp Hızı Kontrolü
+                            </h4>
+                            <ul class="space-y-2 text-sm text-gray-300">
+                                <li><i class="fas fa-check text-green-400 mr-2"></i>Hedef zona ulaşım takibi</li>
+                                <li><i class="fas fa-check text-green-400 mr-2"></i>Dinlenme kalp hızı kontrolü</li>
+                                <li><i class="fas fa-check text-green-400 mr-2"></i>Maksimum 180 atım/dak sınırı</li>
+                                <li><i class="fas fa-check text-green-400 mr-2"></i>Toparlanma hız takibi</li>
+                            </ul>
+                        </div>
+
+                        <!-- Hava Koşulları -->
+                        <div class="bg-gray-600 p-4 rounded-lg">
+                            <h4 class="font-bold text-orange-400 mb-3">
+                                <i class="fas fa-cloud-sun mr-2"></i>Hava Koşulları
+                            </h4>
+                            <ul class="space-y-2 text-sm text-gray-300">
+                                <li><i class="fas fa-check text-green-400 mr-2"></i>Sıcakta tempoyu %5-10 düşür</li>
+                                <li><i class="fas fa-check text-green-400 mr-2"></i>Rüzgarda dinlenme sürelerini artır</li>
+                                <li><i class="fas fa-check text-green-400 mr-2"></i>Soğukta daha uzun ısınma yap</li>
+                                <li><i class="fas fa-check text-green-400 mr-2"></i>Hidrasyon planını ayarla</li>
+                            </ul>
+                        </div>
+
+                        <!-- Beslenme Timing -->
+                        <div class="bg-gray-600 p-4 rounded-lg">
+                            <h4 class="font-bold text-red-400 mb-3">
+                                <i class="fas fa-utensils mr-2"></i>Beslenme Zamanlaması
+                            </h4>
+                            <ul class="space-y-2 text-sm text-gray-300">
+                                <li><i class="fas fa-check text-green-400 mr-2"></i>2-3 saat öncesi: Ana öğün</li>
+                                <li><i class="fas fa-check text-green-400 mr-2"></i>30-60 dk öncesi: Hafif snack</li>
+                                <li><i class="fas fa-check text-green-400 mr-2"></i>Hemen sonrası: Karbohidrat + protein</li>
+                                <li><i class="fas fa-check text-green-400 mr-2"></i>2 saat içinde: Tam öğün</li>
+                            </ul>
+                        </div>
+
+                        <!-- Soğuma -->
+                        <div class="bg-gray-600 p-4 rounded-lg">
+                            <h4 class="font-bold text-cyan-400 mb-3">
+                                <i class="fas fa-snowflake mr-2"></i>Soğuma Protokolü
+                            </h4>
+                            <ul class="space-y-2 text-sm text-gray-300">
+                                <li><i class="fas fa-check text-green-400 mr-2"></i>10-15 dk kolay koşu</li>
+                                <li><i class="fas fa-check text-green-400 mr-2"></i>5-10 dk statik stretching</li>
+                                <li><i class="fas fa-check text-green-400 mr-2"></i>Kalp hızının 100 atım/dak'ya düşmesi</li>
+                                <li><i class="fas fa-check text-green-400 mr-2"></i>Foam rolling (24 saat içinde)</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Acil Durum Protokolü -->
+                <div class="bg-red-900 p-6 rounded-lg border border-red-600">
+                    <h3 class="text-xl font-bold text-red-400 mb-4">
+                        <i class="fas fa-ambulance mr-2"></i>Acil Durum - Ne Zaman Durmalı?
+                    </h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <h4 class="font-bold text-yellow-400 mb-3">Hemen Dur - Ciddi Belirtiler</h4>
+                            <ul class="space-y-2 text-gray-300">
+                                <li><i class="fas fa-ban text-red-400 mr-2"></i>Göğüs ağrısı, nefes darlığı</li>
+                                <li><i class="fas fa-ban text-red-400 mr-2"></i>Baş dönmesi, bayılma hissi</li>
+                                <li><i class="fas fa-ban text-red-400 mr-2"></i>Çarpıntı, düzensiz nabız</li>
+                                <li><i class="fas fa-ban text-red-400 mr-2"></i>Mide bulantısı, kusma</li>
+                                <li><i class="fas fa-ban text-red-400 mr-2"></i>Keskin eklem/kas ağrısı</li>
+                            </ul>
+                        </div>
+                        <div>
+                            <h4 class="font-bold text-orange-400 mb-3">Yavaşla/Değişiklik Yap</h4>
+                            <ul class="space-y-2 text-gray-300">
+                                <li><i class="fas fa-exclamation text-orange-400 mr-2"></i>RPE 9-10 seviyesinde (çok zor)</li>
+                                <li><i class="fas fa-exclamation text-orange-400 mr-2"></i>Tempo kontrolü kaybetme</li>
+                                <li><i class="fas fa-exclamation text-orange-400 mr-2"></i>Form bozukluğu</li>
+                                <li><i class="fas fa-exclamation text-orange-400 mr-2"></i>Anormal ter, aşırı ısınma</li>
+                                <li><i class="fas fa-exclamation text-orange-400 mr-2"></i>Mental focus kaybı</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="bg-red-800 p-4 rounded-lg mt-4">
+                        <p class="text-gray-300"><strong class="text-yellow-400">Altın Kural:</strong> Şüphe durumunda conservatif yaklaş. Bir günlük interval seansını kaçırmak, haftalar sürecek yaralanmadan iyidir.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-gray-900 py-8 px-4 text-center border-t border-gray-700">
+        <div class="max-w-6xl mx-auto">
+            <p class="text-gray-400 mb-4">
+                <i class="fas fa-heart text-red-500 mr-2"></i>
+                Interval Antrenmanının Kapsamlı Rehberi - Hazırlayan: <strong class="text-blue-400">Ümit Emre Erdoğan</strong>
+            </p>
+            <div class="text-sm text-gray-500">
+                <p>Bu rehber bilimsel kaynaklara dayalı olarak hazırlanmıştır. Kişisel antrenman programı için mutlaka uzman danışmanlığı alın.</p>
+                <p class="mt-2">Emil Zatopek'ten günümüz bilimsel yaklaşımlarına - Koşunun gücünü keşfedin! 🏃‍♂️</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Tab fonksiyonları
+        function showTab(tabName) {
+            // Tüm tab içeriklerini gizle
+            const tabContents = document.querySelectorAll('.tab-content');
+            tabContents.forEach(content => {
+                content.classList.remove('active');
+            });
+            
+            // Tüm tab butonlarından active class'ını kaldır
+            const tabButtons = document.querySelectorAll('.tab-button');
+            tabButtons.forEach(button => {
+                button.classList.remove('active');
+            });
+            
+            // Seçilen tab'ı göster
+            document.getElementById(tabName).classList.add('active');
+            
+            // Seçilen tab butonunu aktifleştir
+            event.target.classList.add('active');
+        }
+
+        // Protokol seviyesi fonksiyonları
+        function showProtocolLevel(level) {
+            // Tüm protokol seviyelerini gizle
+            const levelContents = document.querySelectorAll('.protocol-level-content');
+            levelContents.forEach(content => {
+                content.style.display = 'none';
+            });
+            
+            // Tüm protokol butonlarından active class'ını kaldır
+            const levelButtons = document.querySelectorAll('.protocol-level-btn');
+            levelButtons.forEach(button => {
+                button.classList.remove('active', 'bg-blue-600');
+                button.classList.add('bg-gray-600');
+            });
+            
+            // Seçilen seviyeyi göster
+            document.getElementById(level).style.display = 'block';
+            
+            // Seçilen butonu aktifleştir
+            event.target.classList.remove('bg-gray-600');
+            event.target.classList.add('active', 'bg-blue-600');
+        }
+
+        // Accordion fonksiyonu
+        function toggleAccordion(id) {
+            const content = document.getElementById(id + '-content');
+            const icon = document.getElementById(id + '-icon');
+            
+            if (content.classList.contains('active')) {
+                content.classList.remove('active');
+                icon.style.transform = 'rotate(0deg)';
+            } else {
+                // Önce tüm accordion'ları kapat
+                const allContents = document.querySelectorAll('.accordion-content');
+                const allIcons = document.querySelectorAll('.accordion-content').forEach((content, index) => {
+                    content.classList.remove('active');
+                });
+                const iconElements = document.querySelectorAll('[id$="-icon"]');
+                iconElements.forEach(iconEl => {
+                    iconEl.style.transform = 'rotate(0deg)';
+                });
+                
+                // Sonra seçilen accordion'ı aç
+                content.classList.add('active');
+                icon.style.transform = 'rotate(180deg)';
+            }
+        }
+
+        // Smooth scrolling
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+
+        // Mobile responsive navigation
+        window.addEventListener('resize', function() {
+            if (window.innerWidth < 768) {
+                const nav = document.querySelector('nav .flex');
+                nav.classList.add('flex-col', 'gap-1');
+            } else {
+                const nav = document.querySelector('nav .flex');
+                nav.classList.remove('flex-col', 'gap-1');
+            }
+        });
+
+        // Initialize tooltips or any other interactive elements
+        document.addEventListener('DOMContentLoaded', function() {
+            // Add any initialization code here
+            console.log('Interval Antrenman Rehberi yüklendi!');
+        });
+    </script>
+</body>
+</html>
+    <script id="html_badge_script1">
+        window.__genspark_remove_badge_link = "https://www.genspark.ai/api/html_badge/" +
+            "remove_badge?token=To%2FBnjzloZ3UfQdcSaYfDhmpSBl32yuzWGxdxT54KwkWrsYishJeZDWIpzSs3V1or354NeHKyT2z4sza%2BwO4kEsSEDLPONlkhoDqjqvKwK5DzxlW7U6e2XyI%2BawMlN1rdQplim2793gk14EImgHjwhOI5d9q4il5ijUaCozKJH8yxDLP1rWK8lqY01vHO45bz8cv%2BSeoO%2BpKl%2BEWFtN5vJS4ZOu3d%2BspKjc4Xch5JvOetcag%2FQePjZoybgt31a2i6hWNg2Dc3kgOYBEgU7c5vH%2B%2F8QPn%2Baarw3ja1RcvV%2BIIwiRsR3g8VRv6uRfGYIhUPTTvWYBsxq40aazbxeX%2BSLp5pDzfAHEcx5spbR0EVdfm%2FrylZbYKO9oE3gM1V17mb%2FW3aHLr1TH%2FKBdvCEsAKCN9ifnTDj4S6tMCahAVVfRU91wHyvqoYvxXbVM6hQcIGhX%2BcxiYMZ%2BUAzZHsyU8Pa1NqZcq%2Be2bjKf0ESvGN8zVek%2FNPvlrRQd3Yv6lpIsS0hN5I%2BtuMEohG7nxPUmIOPPAgidtnOXSZClD7ko4QoY%3D";
+        window.__genspark_locale = "en-US";
+        window.__genspark_token = "To/BnjzloZ3UfQdcSaYfDhmpSBl32yuzWGxdxT54KwkWrsYishJeZDWIpzSs3V1or354NeHKyT2z4sza+wO4kEsSEDLPONlkhoDqjqvKwK5DzxlW7U6e2XyI+awMlN1rdQplim2793gk14EImgHjwhOI5d9q4il5ijUaCozKJH8yxDLP1rWK8lqY01vHO45bz8cv+SeoO+pKl+EWFtN5vJS4ZOu3d+spKjc4Xch5JvOetcag/QePjZoybgt31a2i6hWNg2Dc3kgOYBEgU7c5vH+/8QPn+aarw3ja1RcvV+IIwiRsR3g8VRv6uRfGYIhUPTTvWYBsxq40aazbxeX+SLp5pDzfAHEcx5spbR0EVdfm/rylZbYKO9oE3gM1V17mb/W3aHLr1TH/KBdvCEsAKCN9ifnTDj4S6tMCahAVVfRU91wHyvqoYvxXbVM6hQcIGhX+cxiYMZ+UAzZHsyU8Pa1NqZcq+e2bjKf0ESvGN8zVek/NPvlrRQd3Yv6lpIsS0hN5I+tuMEohG7nxPUmIOPPAgidtnOXSZClD7ko4QoY=";
+    </script>
+    
+    <script id="html_notice_dialog_script" src="https://www.genspark.ai/notice_dialog.js"></script>
+    
